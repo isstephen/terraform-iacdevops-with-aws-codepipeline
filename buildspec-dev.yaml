@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   variables:
-    TREEAFORM_VERSION: "1.11.3"
+    TERRAFORM_VERSION: "1.11.3"
     TF_COMMAND: "apply"
     #TF_COMMAND: "destroy"
   parameter-store:
