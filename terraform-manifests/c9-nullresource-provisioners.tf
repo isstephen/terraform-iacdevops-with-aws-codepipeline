@@ -12,7 +12,8 @@ resource "null_resource" "name" {
   provisioner "remote-exec" {
     inline = [
       # Write the contents of the key to a file on the remote EC2 instance
-      "echo '${replace(file("${path.module}/private-key/terraform-key.pem"), "\n", "\\n")}' | base64 -d | sudo tee /home/ec2-user/terraform-key.pem > /dev/null",
+      "echo '${replace(file("${path.module}/private-key/terraform-key.pem"), "\n", "\\n")}' | tr '\\n' '\n' | sudo tee /home/ec2-user/terraform-key.pem > /dev/null",
+
 
       # Set correct ownership and permissions
       "sudo chown ec2-user:ec2-user /home/ec2-user/terraform-key.pem",
