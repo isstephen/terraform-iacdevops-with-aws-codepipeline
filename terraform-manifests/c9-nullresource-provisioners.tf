@@ -6,7 +6,7 @@ resource "null_resource" "name" {
     type        = "ssh"
     host        = aws_eip.bastion_eip.public_ip
     user        = "ec2-user"
-    private_key = file("/Users/yangyang/repos/terraform-on-aws/07-AWS-EC2Instance-and-SecurityGroups/terraform-manifests/private-key/terraform-key.pem")
+    private_key = file("${path.module}/private-key/terraform-key.pem")
     agent        = false
   }
 
