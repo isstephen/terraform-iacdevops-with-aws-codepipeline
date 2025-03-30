@@ -145,7 +145,7 @@ module "alb" {
       health_check = {
         enabled             = true
         interval            = 30
-        path                = "/app1/index.html"
+        path                = "/"
         port                = "traffic-port"
         healthy_threshold   = 3
         unhealthy_threshold = 3
@@ -184,7 +184,7 @@ module "alb" {
       health_check = {
         enabled             = true
         interval            = 30
-        path                = "/app2/index.html"
+        path                = "/"
         port                = "traffic-port"
         healthy_threshold   = 3
         unhealthy_threshold = 3
