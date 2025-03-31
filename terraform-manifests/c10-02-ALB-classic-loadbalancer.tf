@@ -111,19 +111,3 @@ module "alb" {
     }# End of Target Group: mytg1
   }# End of Target Group
 }# End of Load Balancer  
-
-# mytg1: Load Balancer Target Group Attachment
-resource "aws_lb_target_group_attachment" "mytg1" {
-  for_each = {for k, v in module.ec2-private-app1: k => v}
-  target_group_arn = module.alb.target_groups["mytg1"].arn
-  target_id        = each.value.id
-  port             = 80
-}
-
-## Temp APP Outputs
-output "zz_ec2_private_app1" {
-  value = {for ec2_instance, ec2_instance_details in module.ec2-private-app1: ec2_instance => ec2_instance_details} 
-}
-output "zz_ec2_private_app2" {
-  value = {for ec2_instance, ec2_instance_details in module.ec2-private-app2: ec2_instance => ec2_instance_details} 
-}
