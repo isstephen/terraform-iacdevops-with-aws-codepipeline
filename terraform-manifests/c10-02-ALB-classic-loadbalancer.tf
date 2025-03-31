@@ -60,57 +60,10 @@ module "alb" {
           }]
           conditions = [{
             path_pattern = {
-              values = ["/app1*"]
+              values = ["/*"]
             }
           }]
         }# End of myapp1-rule
-
-        # Rule-2: myapp2-rule
-        myapp2-rule = {
-          priority = 2
-          actions = [{
-            type = "weighted-forward"
-            target_groups = [
-              {
-                target_group_key = "mytg2"
-                weight           = 1
-              }
-            ]
-            stickiness = {
-              enabled  = true
-              duration = 3600
-            }
-          }]
-          conditions = [{
-            path_pattern = {
-                values =  ["/app2*"]
-            }
-          }]
-        }# End of myapp2-rule Block
-
-        # Rule-3: myapp3-rule
-        myapp3-rule = {
-          priority = 3
-          actions = [{
-            type = "weighted-forward"
-            target_groups = [
-              {
-                target_group_key = "mytg3"
-                weight           = 1
-              }
-            ]
-            stickiness = {
-              enabled  = true
-              duration = 3600
-            }
-          }]
-          conditions = [{
-            path_pattern = {
-                values =  ["/*"]
-            }
-          }]
-        }
-
       }# End Rules Block
     }# End my-https-listener Block
   }# End Listeners Block
@@ -145,7 +98,7 @@ module "alb" {
       health_check = {
         enabled             = true
         interval            = 30
-        path                = "/"
+        path                = "/app1/index.html"
         port                = "traffic-port"
         healthy_threshold   = 3
         unhealthy_threshold = 3
@@ -156,85 +109,6 @@ module "alb" {
       #port             = 80
       tags = local.common_tags
     }# End of Target Group: mytg1
-
-    # TG2
-    mytg2 = {
-      # VERY IMPORTANT: We will create aws_lb_target_group_attachment resource separately when we use create_attachment = false, refer above GitHub issue URL.
-      ## Github ISSUE: https://github.com/terraform-aws-modules/terraform-aws-alb/issues/316
-      ## Search for "create_attachment" to jump to that Github issue solution
-      create_attachment = false
-      name_prefix                       = "mytg2-"
-      protocol                          = "HTTP"
-      port                              = 80
-      target_type                       = "instance"
-      deregistration_delay              = 10
-      load_balancing_algorithm_type     = "weighted_random"
-      load_balancing_anomaly_mitigation = "on"
-      load_balancing_cross_zone_enabled = false
-
-      target_group_health = {
-        dns_failover = {
-          minimum_healthy_targets_count = 2
-        }
-        unhealthy_state_routing = {
-          minimum_healthy_targets_percentage = 50
-        }
-      }
-      protocol_version = "HTTP1"
-      health_check = {
-        enabled             = true
-        interval            = 30
-        path                = "/"
-        port                = "traffic-port"
-        healthy_threshold   = 3
-        unhealthy_threshold = 3
-        timeout             = 6
-        protocol            = "HTTP"
-        matcher             = "200-399"
-      }
-      #port             = 80
-      tags = local.common_tags
-    }# End of Target Group: mytg2
-
-
-    # TG3
-    mytg3 = {
-      # VERY IMPORTANT: We will create aws_lb_target_group_attachment resource separately when we use create_attachment = false, refer above GitHub issue URL.
-      ## Github ISSUE: https://github.com/terraform-aws-modules/terraform-aws-alb/issues/316
-      ## Search for "create_attachment" to jump to that Github issue solution
-      create_attachment = false
-      name_prefix                       = "mytg3-"
-      protocol                          = "HTTP"
-      port                              = 8080
-      target_type                       = "instance"
-      deregistration_delay              = 10
-      load_balancing_algorithm_type     = "weighted_random"
-      load_balancing_anomaly_mitigation = "on"
-      load_balancing_cross_zone_enabled = false
-
-      target_group_health = {
-        dns_failover = {
-          minimum_healthy_targets_count = 2
-        }
-        unhealthy_state_routing = {
-          minimum_healthy_targets_percentage = 50
-        }
-      }
-      protocol_version = "HTTP1"
-      health_check = {
-        enabled             = true
-        interval            = 30
-        path                = "/login"
-        port                = "traffic-port"
-        healthy_threshold   = 3
-        unhealthy_threshold = 3
-        timeout             = 6
-        protocol            = "HTTP"
-        matcher             = "200-399"
-      }
-      #port             = 80
-      tags = local.common_tags
-    }# End of Target Group: mytg2
   }# End of Target Group
 }# End of Load Balancer  
 
@@ -244,24 +118,6 @@ resource "aws_lb_target_group_attachment" "mytg1" {
   target_group_arn = module.alb.target_groups["mytg1"].arn
   target_id        = each.value.id
   port             = 80
-}
-
-# mytg2: Load Balancer Target Group Attachment
-resource "aws_lb_target_group_attachment" "mytg2" {
-  for_each = {for k, v in module.ec2-private-app2: k => v}
-  target_group_arn = module.alb.target_groups["mytg2"].arn
-  target_id        = each.value.id
-  port             = 80
-}
-# k = ec2_instance
-# v = ec2_instance_details
-
-# mytg3: Load Balancer Target Group Attachment
-resource "aws_lb_target_group_attachment" "mytg3" {
-  for_each = {for k, v in module.ec2-private-app3: k => v}
-  target_group_arn = module.alb.target_groups["mytg3"].arn
-  target_id        = each.value.id
-  port             = 8080
 }
 
 ## Temp APP Outputs
