@@ -12,10 +12,10 @@ variable "instance_keypair" {
   default = "terraform.key"
 }
 
-/*
+
 # AWS EC2 Private Instance Count
 variable "private_instance_count" {
   description = "AWS EC2 Private Instance Count"
   type = number
   default = 2
-}*/
+}
